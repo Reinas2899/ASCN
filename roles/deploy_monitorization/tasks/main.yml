@@ -1,0 +1,35 @@
+---
+
+- name: Update HTTPSampler.domain Thread_Group.jmx
+  ansible.builtin.replace:
+    path: Thread_Group.jmx
+    regexp: '<stringProp name="HTTPSampler.domain">.*'
+    replace: '<stringProp name="HTTPSampler.domain">{{ app_ip }}</stringProp>'
+
+- name: Update with x threads Thread_Group.jmx
+  ansible.builtin.replace:
+    path: Thread_Group.jmx
+    regexp: '<stringProp name="ThreadGroup.num_threads">.*'
+    replace: '<stringProp name="ThreadGroup.num_threads">{{ numthreads }}</stringProp>'
+
+- name: Execute jmeter test Thread_Group.jmx
+  become: yes
+  command: "./apache-jmeter-5.5/bin/jmeter -n -t ./Thread_Group.jmx -l results.csv"
+
+- name: Update HTTPSampler.domain Thread_Group2.jmx
+  ansible.builtin.replace:
+    path: Thread_Group2.jmx
+    regexp: '<stringProp name="HTTPSampler.domain">.*'
+    replace: '<stringProp name="HTTPSampler.domain">{{ app_ip }}</stringProp>'
+
+- name: Update with x threads Thread_Group2.jmx
+  ansible.builtin.replace:
+    path: Thread_Group2.jmx
+    regexp: '<stringProp name="ThreadGroup.num_threads">.*'
+    replace: '<stringProp name="ThreadGroup.num_threads">{{ numthreads }}</stringProp>'
+
+- name: Execute jmeter test Thread_Group2.jmx
+  become: yes
+  command: "./apache-jmeter-5.5/bin/jmeter -n -t ./Thread_Group2.jmx -l results.csv"
+
+

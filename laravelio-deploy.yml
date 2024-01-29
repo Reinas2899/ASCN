@@ -1,0 +1,10 @@
+---
+# Playbook to deploy laravel.io and its components
+# TO DO
+- name: Deploy LARAVELIO
+  hosts: localhost
+  roles: 
+    - deploy_mysql
+    - deploy_laravelio
+    - deploy_dashboard
+    - deploy_monitorization

@@ -1,0 +1,38 @@
+---
+# Deployment for deploying Laravelio
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: laravelio-deployment
+  labels:
+    app: laravelio
+spec:
+  selector:
+    matchLabels:
+      app: laravelio
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: laravelio
+        tier: app
+    spec:
+      containers:
+      - name: laravelio
+        image: joaoppc2002/laravelio:latest
+        env: # The variables below could be set on a ConfigMap object
+        - name: APP_URL
+          value: http://{{ app_ip }}:{{ app_port }}
+        - name: DB_HOST
+          value: mysql-service
+        - name: DB_DATABASE
+          value: laravel
+        - name: DB_USERNAME
+          value: testing
+        - name: DB_PASSWORD
+          value: "password"
+        ports:
+        - containerPort: 8000
+        resources:
+          requests: 
+            cpu: "500m"

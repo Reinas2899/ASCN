@@ -1,0 +1,16 @@
+---
+# Service for exposing laravelio
+apiVersion: v1
+kind: Service
+metadata:
+  name: laravelio-service # logical name of the service, which will also become the DNS name of the service when it is created.
+  labels:
+    app: laravelio
+    tier: app
+spec:
+  type: LoadBalancer
+  selector:
+    app: laravelio
+  ports:
+    - targetPort: 8000 # port that containers are listening on
+      port: 80 # port number exposed internally in the cluster

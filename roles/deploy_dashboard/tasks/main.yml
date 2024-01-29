@@ -1,0 +1,8 @@
+---
+
+- name: Set project
+  command: "gcloud config set project {{ gcp_project }}"
+  register: project
+
+- name: Create dashboard
+  command: "gcloud monitoring dashboards create --config-from-file=dashboard.json"

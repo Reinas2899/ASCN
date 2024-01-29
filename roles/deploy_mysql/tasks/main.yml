@@ -1,0 +1,21 @@
+---
+# Playbook to deploy PVC, MySQL, and MySQL service
+- name: MySQL PVC
+  shell: kubectl apply -f roles/deploy_mysql/k8s/mysql-pvc.yml
+  register: persistentvolume
+
+- debug:
+    var: persistentvolume.stdout_lines
+
+- name: Deploy MySQL
+  shell: kubectl apply -f roles/deploy_mysql/k8s/mysql-deployment.yml
+
+- name: Wait for MySQL objects to be ready
+  command: kubectl get all
+  register: kubectl_get_all_output
+  until: "'1/1' in kubectl_get_all_output.stdout_lines[1]"
+  retries: 30
+  delay: 5
+
+- name: Deploy MySQL Service
+  shell: kubectl apply -f roles/deploy_mysql/k8s/mysql-service.yml

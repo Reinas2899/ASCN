@@ -1,0 +1,13 @@
+---
+# Playbook to delete data
+- name: delete pvc
+  shell: kubectl delete --wait=true pvc mysql-pv-claim
+
+#- name: Get PV
+#  shell: kubectl get pv --output=jsonpath='{.items[0].metadata.name}'
+#  register: pv_check
+#  ignore_errors: true
+
+#- name: Delete PV
+#  shell: kubectl delete pv {{ pv_check.stdout }}
+#  ignore_errors: true

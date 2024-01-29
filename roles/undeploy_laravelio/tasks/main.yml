@@ -1,0 +1,16 @@
+---
+
+- name: Undeploy MySQL service
+  shell: kubectl delete --wait=true services mysql-service
+
+- name: Undeploy MySQL Deployment
+  shell: kubectl delete --wait=true deployment mysql-deployment
+
+- name: Undeploy AutoScaler
+  shell: kubectl delete hpa laravelio-deployment
+
+- name: Undeploy Laravelio Service
+  shell: kubectl delete --wait=true services laravelio-service
+
+- name: Undeploy Laravelio Deployment
+  shell: kubectl delete --wait=true deployment laravelio-deployment

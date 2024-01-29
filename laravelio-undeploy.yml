@@ -1,0 +1,12 @@
+---
+# Playbook to undeploy laravel.io and its component
+# TO DO
+- name: UNDEPLOY LARAVELIO
+  hosts: localhost
+  vars:
+    delete_data: 'true'
+  roles: 
+    - undeploy_laravelio
+    - name: delete_pv
+      when: delete_data
+    - undeploy_dashboard

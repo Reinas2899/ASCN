@@ -1,0 +1,59 @@
+---
+
+- name: Laravelio-Service
+  shell: kubectl apply -f roles/deploy_laravelio/k8s/laravelio-service.yml
+
+- name: Wait for mysql pods to be ready
+  shell: "kubectl wait --for=condition=Ready pods --selector app=mysql --timeout=550s"
+  
+- name: Retrieve external IP
+  # kubectl get service/laravelio-service --output=jsonpath='{.status.loadBalancer.ingress[0].ip}' 
+  shell: "kubectl get service laravelio-service --output=wide | grep laravelio-service | awk '{print $4}'"
+  register: external_ip
+  until: 
+    - external_ip.stdout != ""
+    - external_ip.stdout != "<pending>"
+  retries: 10
+  delay: 15
+
+- name: Set app_ip in memory
+  ansible.builtin.set_fact:
+    app_ip: "{{ external_ip.stdout }}"
+    app_port: "{{ app_port }}"
+
+- name: Updating app_ip Inventory Variable
+  ansible.builtin.lineinfile: 
+    path: inventory/gcp.yml
+    state: present
+    regexp:  'app_ip:.*'
+    line: '  app_ip: {{ app_ip }}'
+    backrefs: yes
+
+- name: Laravelio-Deploy
+  shell: kubectl apply -f roles/deploy_laravelio/k8s/laravelio-deployment.yml
+
+- name: Wait for all pods to be ready
+  command: kubectl get pods
+  register: kubectl_get_pods_output
+  until: 
+    - "'1/1' in kubectl_get_pods_output.stdout_lines[1]"
+    - "'1/1' in kubectl_get_pods_output.stdout_lines[2]"
+  retries: 25
+  delay: 30
+
+- name: Get MySQL Pod Name
+  shell: kubectl get pods -l app=mysql -o jsonpath='{.items[0].metadata.name}'
+  register: mysql_pod_name
+  until: mysql_pod_name.stdout != ""
+
+- name: Set log on
+  shell: kubectl exec -it {{ mysql_pod_name.stdout }} -- mysql --execute="set global general_log='ON';"
+
+- name: Set log_output
+  shell: kubectl exec -it {{ mysql_pod_name.stdout }} -- mysql --execute="set global log_output='table'"
+
+- name: Laravelio-hpa-Deploy
+  shell: kubectl apply -f roles/deploy_laravelio/k8s/laravelio-hpa.yml
+
+- name: lista de escalonadores automáticos
+  shell: kubectl get hpa
